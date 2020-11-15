@@ -14,8 +14,6 @@ const fontWeights = {
     bold: 700
 }
 
-const breakpoints = ['40em', '52em', '64em']
-
 const theme = {
   ...chakraTheme,
   colors: {
@@ -24,7 +22,6 @@ const theme = {
   },
   fonts,
   fontWeights,
-  breakpoints,
 }
 
 export default theme
