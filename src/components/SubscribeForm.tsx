@@ -30,8 +30,6 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
     const [weeklyRecipes, setWeeklyRecipes] = useState<number>(initialWeeklyRecipes);
     const [currentPlan, setCurrentPlan] = useState<number>(initialPlan);
 
-    setCurrentPlan(initialPlan)
-
     const [subscribeToPlan] = useMutation(SUBSCRIBE_TO_PLAN_MUTATION);
 
     const PlanPrice = () => {
