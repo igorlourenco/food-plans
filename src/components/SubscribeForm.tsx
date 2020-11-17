@@ -23,12 +23,10 @@ const getCurrentPlan = (numberOfPeople: number, weeklyRecipes: number, plans: Pl
 const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: SubscribeFormProps) => {
     const initialNumberOfPeople = numberOfPeopleArray[0]
     const initialWeeklyRecipes = weeklyRecipesArray[0]
-    const initialPlan = plans[0].id
 
     const toast = useToast()
     const [numberOfPeople, setNumberOfPeople] = useState<number>(initialNumberOfPeople);
     const [weeklyRecipes, setWeeklyRecipes] = useState<number>(initialWeeklyRecipes);
-    const currentPlan = initialPlan; // TODO: set up state when configure dynamic subscription
 
     const [subscribeToPlan] = useMutation(SUBSCRIBE_TO_PLAN_MUTATION);
 
@@ -46,9 +44,9 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
             </Heading>
         }
 
-        const formattedPrice = new Intl.NumberFormat('br-BR', { style: 'currency', currency: 'BRL' }).format(plan.price)
+        const formattedPrice = "R$ " + plan.price.toString().replace(".", ",")
 
-        return  <Heading
+        return <Heading
             fontSize={`34px`}
             fontWeight={`medium`}
             color={`#FF5C26`}
@@ -61,7 +59,21 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
     }
 
     function handleSubscribeToPlan() {
-        subscribeToPlan({variables: {id: currentPlan}}).then(
+        const plan: Plan | undefined = getCurrentPlan(numberOfPeople, weeklyRecipes, plans)
+
+        if (!plan) {
+            toast({
+                title: `Ocorreu um erro :(`,
+                description: `Não foi possível completar sua assinatura. 
+                               Por favor, confira os dados do plano selecionado e tente novamente.`,
+                status: `error`,
+                duration: 9000,
+                isClosable: true,
+            })
+            return
+        }
+
+        subscribeToPlan({variables: {id: plan.id}}).then(
             ({data}) => toast({
                 title: `Assinatura feita com sucesso!`,
                 description: `Você assinou o plano de ${data.subscribeToPlan.name}, que atende ${data.subscribeToPlan.numberOfPeople} pessoas`,
@@ -88,7 +100,7 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
               templateColumns={`repeat(6, 1fr)`} backgroundColor={`white`}
               direction={[`column`, `column`, `row`, `row`]} borderRadius={`10px`} overflow={`hidden`}>
 
-            <GridItem height={[`60vh`, `60vh`, `auto`, `auto`]} colSpan={[6, 6, 2, 2]} rowSpan={1} >
+            <GridItem height={[`60vh`, `60vh`, `auto`, `auto`]} colSpan={[6, 6, 2, 2]} rowSpan={1}>
                 <Image src={`/backgrounds/bg1.jpg`} objectFit={[`none`, `none`, `cover`, `cover`]} boxSize={`100%`}/>
             </GridItem>
 
@@ -143,7 +155,9 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                                                     backgroundColor={numberOfPeople === item ? `#3BB300` : `#FFFFFF`}
                                                     borderRadius={`10px`} fontSize={`28px`} fontWeight={`medium`}
                                                     color={numberOfPeople === item ? `#FFFFFF` : `#AEB2B8`}
-                                                    onClick={() => setNumberOfPeople(item)}>
+                                                    onClick={() => {
+                                                        setNumberOfPeople(item)
+                                                    }}>
                                                 {item}
                                             </Button>
                                         ))
@@ -167,12 +181,13 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                                                     backgroundColor={weeklyRecipes === item ? `#3BB300` : `#FFFFFF`}
                                                     borderRadius={`10px`} fontSize={`28px`} fontWeight={`medium`}
                                                     color={weeklyRecipes === item ? `#FFFFFF` : `#AEB2B8`}
-                                                    onClick={() => setWeeklyRecipes(item)}>
+                                                    onClick={() => {
+                                                        setWeeklyRecipes(item)
+                                                    }}>
                                                 {item}
                                             </Button>
                                         ))
                                     }
-
                                 </ButtonGroup>
                             </GridItem>
                         </Grid>
