@@ -1,9 +1,18 @@
-import {Button, ButtonGroup, Flex, Grid, GridProps, GridItem, Heading, Image, Text, useToast, ButtonProps} from "@chakra-ui/core";
+import {Button, ButtonGroup, Flex as ChakraFlex, Grid, GridProps, GridItem, Heading, Image, Text, useToast, ButtonProps, FlexProps} from "@chakra-ui/core";
 import {useState} from "react";
 import {Plan, SubscribeFormProps} from "../interfaces";
 import {gql, useMutation} from "@apollo/client";
 import {SUBSCRIBE_TO_PLAN_MUTATION} from "../services/graphql-queries";
 import {errorToast, getCurrentPlan, successToast} from "../util";
+
+const Flex =  (props: FlexProps) => (
+    <ChakraFlex alignItems={`center`}
+                justifyContent={`center`}
+        {...props}>
+            {props.children}
+    </ChakraFlex>
+
+)
 
 const SubscribeToPlanContainer = (props: GridProps) => (
     <Grid width={[`95%`, `95%`, `90%`, `90%`]}
@@ -135,13 +144,14 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                             Gostou e ainda não é assinante? <Text>Escolha já um plano semanal!</Text>
                         </Heading>
                     </GridItem>
+
                     <GridItem rowSpan={[1, 1, 3, 3]} colSpan={[4, 4, 1, 1]} display={`flex`}
                               flexDirection={`column`} alignItems={`center`}
                               justifyContent={`center`}>
                         <PlanPickerContainer>
                             <GridItem display={`flex`} flexDirection={`column`} alignItems={`center`}
                                       justifyContent={`center`} gridGap={6}>
-                                <Flex direction={`row`} alignItems={`center`} justifyContent={`center`}>
+                                <Flex direction={`row`}>
                                     <Image src={`/icons/user.svg`} width={`30px`} marginRight={3}/>
                                     <Text width={`60%`} fontSize={`16px`} color={`#49AD33`}>
                                         Receita para quantas pessoas?
@@ -168,14 +178,13 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
 
                             <GridItem display={`flex`} flexDirection={`column`} alignItems={`center`}
                                       justifyContent={`center`} gridGap={6}>
-                                <Flex direction={`row`} alignItems={`center`} justifyContent={`center`}>
+                                <Flex direction={`row`}>
                                     <Image src={`/icons/kitchen-tools.svg`} width={`30px`} marginRight={3}/>
                                     <Text width={`60%`} fontSize={`16px`} color={`#49AD33`}>
                                         Quantas receitas por semana?
                                     </Text>
                                 </Flex>
-                                <ButtonGroup display={`flex`} flexWrap={`wrap`} aling={`center`} justify={`center`}
-                                             gridGap={1}>
+                                <ButtonGroup display={`flex`} flexWrap={`wrap`} aling={`center`} justify={`center`}  gridGap={1}>
                                     {
                                         weeklyRecipesArray.map((item: number) => (
                                             <Button key={item} width={`50px`} height={`50px`}
