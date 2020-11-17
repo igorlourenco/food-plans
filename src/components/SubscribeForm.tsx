@@ -1,18 +1,39 @@
-import {Button, ButtonGroup, Flex, Grid, GridItem, Heading, Image, Text} from "@chakra-ui/core";
+import {Button, ButtonGroup, Flex, Grid, GridItem, Heading, Image, Text, useToast} from "@chakra-ui/core";
 import {useState} from "react";
-import { Plan, SubscribeFormProps } from "../interfaces";
+import {Plan, SubscribeFormProps} from "../interfaces";
+import {gql, useMutation} from "@apollo/client";
+
+const SUBSCRIBE_TO_PLAN_MUTATION = gql`
+mutation SubscribeToPlan($id: Int){
+  subscribeToPlan(id: $id){
+    name
+    price
+    numberOfPeople
+    weeklyRecipes
+  }
+}
+`
+
+const getCurrentPlan = (numberOfPeople: number, weeklyRecipes: number, plans: Plan[]) => {
+    return plans.find(
+        (item: Plan) => item.numberOfPeople === numberOfPeople && item.weeklyRecipes === weeklyRecipes
+    )
+}
 
 const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: SubscribeFormProps) => {
     const initialNumberOfPeople = numberOfPeopleArray[0]
     const initialWeeklyRecipes = weeklyRecipesArray[0]
+    const initialPlan = plans[0].id
 
+    const toast = useToast()
     const [numberOfPeople, setNumberOfPeople] = useState<number>(initialNumberOfPeople);
     const [weeklyRecipes, setWeeklyRecipes] = useState<number>(initialWeeklyRecipes);
+    const [currentPlan, setCurrentPlan] = useState<number>(initialPlan);
+
+    const [subscribeToPlan] = useMutation(SUBSCRIBE_TO_PLAN_MUTATION);
 
     const PlanPrice = () => {
-        const plan = plans.find(
-            (item: Plan) => item.numberOfPeople === numberOfPeople && item.weeklyRecipes === weeklyRecipes
-        )
+        const plan: Plan | undefined = getCurrentPlan(numberOfPeople, weeklyRecipes, plans)
 
         if (!plan) {
             return <Heading
@@ -36,6 +57,27 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
 
     }
 
+    function handleSubscribeToPlan() {
+        subscribeToPlan({variables: {id: currentPlan}}).then(
+            ({data}) => toast({
+                title: `Assinatura feita com sucesso!`,
+                description: `Você assinou o plano de ${data.subscribeToPlan.name}, que atende ${data.subscribeToPlan.numberOfPeople} pessoas`,
+                status: `success`,
+                duration: 9000,
+                isClosable: true,
+            })
+        ).catch(() => {
+            toast({
+                title: `Ocorreu um erro :(`,
+                description: `Não foi possível completar sua assinatura. 
+                               Por favor, confira os dados do plano selecionado e tente novamente.`,
+                status: `error`,
+                duration: 9000,
+                isClosable: true,
+            })
+            return
+        })
+    }
 
     return (
         <Grid width={[`95%`, `95%`, `90%`, `90%`]} maxWidth={`1200px`} height={`auto`}
@@ -92,7 +134,7 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                                         Receita para quantas pessoas?
                                     </Text>
                                 </Flex>
-                                <ButtonGroup display={`flex`} flexWrap={`wrap`} alingItems={`center`} justifyContent={`center`}
+                                <ButtonGroup display={`flex`} flexWrap={`wrap`} aling={`center`} justify={`center`}
                                              gridGap={1}>
                                     {
                                         numberOfPeopleArray.map((item: number) => (
@@ -159,7 +201,9 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                                       justifyContent={`center`}>
                                 <Button backgroundColor={`#3BB300`} colorScheme={`#3BB300`} borderRadius={`50px`}
                                         width={`90%`}
-                                        fontWeight={`medium`} fontSize={`15px`}>
+                                        fontWeight={`medium`} fontSize={`15px`}
+                                        onClick={() => handleSubscribeToPlan(currentPlan)}
+                                >
                                     Quero assinar agora!
                                 </Button>
                             </GridItem>

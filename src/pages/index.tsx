@@ -4,6 +4,7 @@ import client from '../services/api'
 import SubscribeForm from "../components/SubscribeForm";
 import {Loading, Error} from "../components/messages";
 import Container from "../components/Container";
+import {ChoosePlanData, IndexProps } from "../interfaces";
 
 const INITIAL_PLANS_DATA_QUERY = `query {
                     listPlans {
