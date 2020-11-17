@@ -1,27 +1,8 @@
 import {Button, ButtonGroup, Flex, Grid, GridItem, Heading, Image, Text} from "@chakra-ui/core";
 import {useState} from "react";
+import { Plan, SubscribeFormProps } from "../interfaces";
 
-interface Props {
-    numberOfPeopleArray: number[]
-    weeklyRecipesArray: number[]
-    plans: {
-        id: number
-        name: string
-        price: number
-        numberOfPeople: number
-        weeklyRecipes: number
-    }[]
-}
-
-interface Plan {
-    id: number
-    name: string
-    price: number
-    numberOfPeople: number
-    weeklyRecipes: number
-}
-
-const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Props) => {
+const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: SubscribeFormProps) => {
     const initialNumberOfPeople = numberOfPeopleArray[0]
     const initialWeeklyRecipes = weeklyRecipesArray[0]
 
@@ -111,7 +92,7 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Props) 
                                         Receita para quantas pessoas?
                                     </Text>
                                 </Flex>
-                                <ButtonGroup display={`flex`} flexWrap={`wrap`} aling={`center`} justify={`center`}
+                                <ButtonGroup display={`flex`} flexWrap={`wrap`} alingItems={`center`} justifyContent={`center`}
                                              gridGap={1}>
                                     {
                                         numberOfPeopleArray.map((item: number) => (

@@ -5,22 +5,16 @@ import SubscribeForm from "../components/SubscribeForm";
 import {Loading, Error} from "../components/messages";
 import Container from "../components/Container";
 
-interface ChoosePlanData {
-    numberOfPeople: number
-    weeklyRecipes: number
-}
+const INITIAL_PLANS_DATA_QUERY = `query {
+                    listPlans {
+                        id
+                        name
+                        price
+                        weeklyRecipes
+                        numberOfPeople
+                    }
+                }`
 
-interface IndexProps {
-    numberOfPeopleArray: number[]
-    weeklyRecipesArray: number[]
-    plans: {
-        id: number
-        name: string
-        price: number
-        numberOfPeople: number
-        weeklyRecipes: number
-    }[]
-}
 
 const Title = () => (
     <Heading
@@ -51,18 +45,8 @@ const Index = ({numberOfPeopleArray, weeklyRecipesArray, plans}: IndexProps) => 
 Index.getInitialProps = async () => {
     const response = await client
         .query({
-            query: gql`
-                query {
-                    listPlans {
-                        id
-                        name
-                        price
-                        weeklyRecipes
-                        numberOfPeople
-                    }
-                }
-            `})
-
+            query: gql`${INITIAL_PLANS_DATA_QUERY}`
+        })
 
     const {data, loading, error} = response
 
