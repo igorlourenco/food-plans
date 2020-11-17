@@ -28,7 +28,7 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
     const toast = useToast()
     const [numberOfPeople, setNumberOfPeople] = useState<number>(initialNumberOfPeople);
     const [weeklyRecipes, setWeeklyRecipes] = useState<number>(initialWeeklyRecipes);
-    const [currentPlan, setCurrentPlan] = useState<number>(initialPlan);
+    const currentPlan = initialPlan; // TODO: set up state when configure dynamic subscription
 
     const [subscribeToPlan] = useMutation(SUBSCRIBE_TO_PLAN_MUTATION);
 
