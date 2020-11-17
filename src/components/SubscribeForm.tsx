@@ -37,23 +37,26 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
 
         if (!plan) {
             return <Heading
-                fontSize={`20px`}
+                fontSize={`14px`}
                 fontWeight={`medium`}
                 color={`#FF5C26`}
                 textAlign={`center`}
             >
-                Ainda não temos planos para os valores selecionados
+                Desculpe, ainda não temos esse plano
             </Heading>
         }
 
-        return <Heading
+        const formattedPrice = new Intl.NumberFormat('br-BR', { style: 'currency', currency: 'BRL' }).format(plan.price)
+
+        return  <Heading
             fontSize={`34px`}
             fontWeight={`medium`}
             color={`#FF5C26`}
             textAlign={`center`}
         >
-            {plan.price}
+            {formattedPrice}
         </Heading>
+
 
     }
 
@@ -85,13 +88,11 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
               templateColumns={`repeat(6, 1fr)`} backgroundColor={`white`}
               direction={[`column`, `column`, `row`, `row`]} borderRadius={`10px`} overflow={`hidden`}>
 
-            <GridItem colSpan={[6, 6, 2, 2]}>
-                <Image src={`/backgrounds/bg1.jpg`} boxSize={`100%`} borderRadius={`10px`}
-                       objectFit="cover"/>
+            <GridItem height={[`60vh`, `60vh`, `auto`, `auto`]} colSpan={[6, 6, 2, 2]} rowSpan={1} >
+                <Image src={`/backgrounds/bg1.jpg`} objectFit={[`none`, `none`, `cover`, `cover`]} boxSize={`100%`}/>
             </GridItem>
 
-
-            <GridItem colSpan={[6, 6, 4, 4]} marginY={3}>
+            <GridItem colSpan={[6, 6, 4, 4]} rowSpan={[4, 4, 1, 1]} marginY={3}>
                 <Grid
                     flexDirection={[`column`, `column`, `row`, `row`]}
                     templateRows={[`repeat(1, 1fr)`, `repeat(1, 1fr)`, `repeat(4, 1fr)`, `repeat(4, 1fr)`]}
