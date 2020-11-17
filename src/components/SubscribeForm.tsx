@@ -204,7 +204,7 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                                 <Button backgroundColor={`#3BB300`} colorScheme={`#3BB300`} borderRadius={`50px`}
                                         width={`90%`}
                                         fontWeight={`medium`} fontSize={`15px`}
-                                        onClick={() => handleSubscribeToPlan(currentPlan)}
+                                        onClick={() => handleSubscribeToPlan()}
                                 >
                                     Quero assinar agora!
                                 </Button>
