@@ -1,4 +1,4 @@
-import {Button, ButtonGroup, Flex as ChakraFlex, Grid, GridProps, GridItem, Heading, Image, Text, useToast, ButtonProps, FlexProps} from "@chakra-ui/core";
+import {Button, ButtonGroup, Flex as ChakraFlex, Grid, GridProps, GridItem, Heading, Image, Text, useToast, FlexProps} from "@chakra-ui/core";
 import {useState} from "react";
 import {Plan, SubscribeFormProps} from "../interfaces";
 import {gql, useMutation} from "@apollo/client";
@@ -59,18 +59,6 @@ const PlanPickerContainer = (props: GridProps) => (
         {...props}>
         {props.children}
     </Grid>
-)
-
-const ButtonSubscribeToPlan = (props: ButtonProps) => (
-    <Button backgroundColor={`#3BB300`}
-            colorScheme={`#3BB300`}
-            borderRadius={`50px`}
-            width={`90%`}
-            fontWeight={`medium`}
-            fontSize={`15px`}
-            {...props}>
-        {props.children}
-    </Button>
 )
 
 const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: SubscribeFormProps) => {
@@ -233,9 +221,16 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                                       display={`flex`}
                                       alignItems={`center`}
                                       justifyContent={`center`}>
-                                <ButtonSubscribeToPlan onClick={handleSubscribeToPlan}>
+
+                                <Button backgroundColor={`#3BB300`}
+                                    colorScheme={`#3BB300`}
+                                    borderRadius={`50px`}
+                                    width={`90%`}
+                                    fontWeight={`medium`}
+                                    fontSize={`15px`} onClick={handleSubscribeToPlan}>
                                     Quero assinar agora!
-                                </ButtonSubscribeToPlan>
+                                </Button>
+
                             </GridItem>
                         </Grid>
                     </GridItem>
