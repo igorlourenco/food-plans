@@ -2,20 +2,12 @@ import {Heading, Text} from "@chakra-ui/core";
 import {gql} from '@apollo/client'
 import client from '../services/api'
 import SubscribeForm from "../components/SubscribeForm";
-import {Loading, Error} from "../components/messages";
 import Container from "../components/Container";
-import {ChoosePlanData, IndexProps } from "../interfaces";
-
-const INITIAL_PLANS_DATA_QUERY = `query {
-                    listPlans {
-                        id
-                        name
-                        price
-                        weeklyRecipes
-                        numberOfPeople
-                    }
-                }`
-
+import {ChoosePlanData, IndexProps} from "../interfaces";
+import {INITIAL_PLANS_DATA_QUERY} from "../services/graphql-queries";
+import {convertJSONToArray} from "../util";
+import LoadingMessage from "../components/messages/Loading";
+import ErrorMessage from "../components/messages/Error";
 
 const Title = () => (
     <Heading
@@ -51,8 +43,8 @@ Index.getInitialProps = async () => {
 
     const {data, loading, error} = response
 
-    if (loading) return <Loading/>
-    if (error) return <Error/>
+    if (loading) return <LoadingMessage/>
+    if (error) return <ErrorMessage/>
 
     let numberOfPeopleArray: number[] = []
     let weeklyRecipesArray: number[] = []
@@ -62,13 +54,8 @@ Index.getInitialProps = async () => {
         weeklyRecipesArray.push(plan.weeklyRecipes)
     })
 
-    numberOfPeopleArray = numberOfPeopleArray.filter((item, index) => {
-        return numberOfPeopleArray.indexOf(item) === index
-    })
-
-    weeklyRecipesArray = weeklyRecipesArray.filter((item, index) => {
-        return weeklyRecipesArray.indexOf(item) === index
-    })
+    numberOfPeopleArray = convertJSONToArray(numberOfPeopleArray)
+    weeklyRecipesArray = convertJSONToArray(weeklyRecipesArray)
 
     const plans = data.listPlans
 

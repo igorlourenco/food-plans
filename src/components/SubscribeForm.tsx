@@ -1,38 +1,82 @@
-import {Button, ButtonGroup, Flex, Grid, GridItem, Heading, Image, Text, useToast} from "@chakra-ui/core";
+import {Button, ButtonGroup, Flex, Grid, GridProps, GridItem, Heading, Image, Text, useToast, ButtonProps} from "@chakra-ui/core";
 import {useState} from "react";
 import {Plan, SubscribeFormProps} from "../interfaces";
 import {gql, useMutation} from "@apollo/client";
+import {SUBSCRIBE_TO_PLAN_MUTATION} from "../services/graphql-queries";
+import {errorToast, getCurrentPlan, successToast} from "../util";
 
-const SUBSCRIBE_TO_PLAN_MUTATION = gql`
-mutation SubscribeToPlan($id: Int){
-  subscribeToPlan(id: $id){
-    name
-    price
-    numberOfPeople
-    weeklyRecipes
-  }
-}
-`
+const SubscribeToPlanContainer = (props: GridProps) => (
+    <Grid width={[`95%`, `95%`, `90%`, `90%`]}
+          maxWidth={`1200px`}
+          height={`auto`}
+          templateRows={`repeat(1, 1fr)`}
+          templateColumns={`repeat(6, 1fr)`}
+          backgroundColor={`white`}
+          direction={[`column`, `column`, `row`, `row`]}
+          borderRadius={`10px`}
+          overflow={`hidden`}
+          {...props}>
+        {props.children}
+    </Grid>
+)
 
-const getCurrentPlan = (numberOfPeople: number, weeklyRecipes: number, plans: Plan[]) => {
-    return plans.find(
-        (item: Plan) => item.numberOfPeople === numberOfPeople && item.weeklyRecipes === weeklyRecipes
-    )
-}
+const FormContainer = (props: GridProps) => (
+    <Grid
+        flexDirection={[`column`, `column`, `row`, `row`]}
+        templateRows={[`repeat(1, 1fr)`, `repeat(1, 1fr)`, `repeat(4, 1fr)`, `repeat(4, 1fr)`]}
+        templateColumns={[`repeat(4, 1fr)`, `repeat(4, 1fr)`, `repeat(1, 1fr)`, `repeat(1, 1fr)`]}
+        gap={6}
+        paddingY={[0, 0, 2, 2]}
+        {...props}>
+        {props.children}
+    </Grid>
+)
+
+const PlanPickerContainer = (props: GridProps) => (
+    <Grid
+        templateRows="repeat(1, 1fr)"
+        templateColumns="repeat(2, 1fr)"
+        width={`95%`}
+        height={[`auto`, `auto`, `95%`, `95%`]}
+        borderRadius={`10px`}
+        backgroundColor={`#F5F8FA`}
+        paddingY={[6, 6, 8, 8]}
+        paddingX={[6, 6, 10, 10]}
+        display={`flex`}
+        alignItems={`center`}
+        justifyContent={`center`}
+        flexDirection={[`column`, `column`, `row`, `row`]}
+        gap={8}
+        {...props}>
+        {props.children}
+    </Grid>
+)
+
+const ButtonSubscribeToPlan = (props: ButtonProps) => (
+    <Button backgroundColor={`#3BB300`}
+            colorScheme={`#3BB300`}
+            borderRadius={`50px`}
+            width={`90%`}
+            fontWeight={`medium`}
+            fontSize={`15px`}
+            {...props}>
+        {props.children}
+    </Button>
+)
 
 const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: SubscribeFormProps) => {
     const initialNumberOfPeople = numberOfPeopleArray[0]
     const initialWeeklyRecipes = weeklyRecipesArray[0]
 
-    const toast = useToast()
     const [numberOfPeople, setNumberOfPeople] = useState<number>(initialNumberOfPeople);
     const [weeklyRecipes, setWeeklyRecipes] = useState<number>(initialWeeklyRecipes);
 
-    const [subscribeToPlan] = useMutation(SUBSCRIBE_TO_PLAN_MUTATION);
+    const [subscribeToPlan] = useMutation(gql`${SUBSCRIBE_TO_PLAN_MUTATION}`);
+
+    const toast = useToast()
 
     const PlanPrice = () => {
         const plan: Plan | undefined = getCurrentPlan(numberOfPeople, weeklyRecipes, plans)
-
         if (!plan) {
             return <Heading
                 fontSize={`14px`}
@@ -54,64 +98,35 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
         >
             {formattedPrice}
         </Heading>
-
-
     }
 
-    function handleSubscribeToPlan() {
+    const handleSubscribeToPlan = () => {
         const plan: Plan | undefined = getCurrentPlan(numberOfPeople, weeklyRecipes, plans)
 
         if (!plan) {
-            toast({
-                title: `Ocorreu um erro :(`,
-                description: `Não foi possível completar sua assinatura. 
-                               Por favor, confira os dados do plano selecionado e tente novamente.`,
-                status: `error`,
-                duration: 9000,
-                isClosable: true,
-            })
+            errorToast(toast)
             return
         }
 
         subscribeToPlan({variables: {id: plan.id}}).then(
-            ({data}) => toast({
-                title: `Assinatura feita com sucesso!`,
-                description: `Você assinou o plano de ${data.subscribeToPlan.name}, que atende ${data.subscribeToPlan.numberOfPeople} pessoas`,
-                status: `success`,
-                duration: 9000,
-                isClosable: true,
-            })
+            ({data}) => successToast(
+                toast,
+                `Assinatura feita com sucesso!`,
+                `Você assinou o plano de ${data.subscribeToPlan.name}, que atende ${data.subscribeToPlan.numberOfPeople} pessoas`)
         ).catch(() => {
-            toast({
-                title: `Ocorreu um erro :(`,
-                description: `Não foi possível completar sua assinatura. 
-                               Por favor, confira os dados do plano selecionado e tente novamente.`,
-                status: `error`,
-                duration: 9000,
-                isClosable: true,
-            })
+            errorToast(toast)
             return
         })
     }
 
     return (
-        <Grid width={[`95%`, `95%`, `90%`, `90%`]} maxWidth={`1200px`} height={`auto`}
-              templateRows={`repeat(1, 1fr)`}
-              templateColumns={`repeat(6, 1fr)`} backgroundColor={`white`}
-              direction={[`column`, `column`, `row`, `row`]} borderRadius={`10px`} overflow={`hidden`}>
-
+        <SubscribeToPlanContainer>
             <GridItem height={[`60vh`, `60vh`, `auto`, `auto`]} colSpan={[6, 6, 2, 2]} rowSpan={1}>
                 <Image src={`/backgrounds/bg1.jpg`} objectFit={[`none`, `none`, `cover`, `cover`]} boxSize={`100%`}/>
             </GridItem>
 
             <GridItem colSpan={[6, 6, 4, 4]} rowSpan={[4, 4, 1, 1]} marginY={3}>
-                <Grid
-                    flexDirection={[`column`, `column`, `row`, `row`]}
-                    templateRows={[`repeat(1, 1fr)`, `repeat(1, 1fr)`, `repeat(4, 1fr)`, `repeat(4, 1fr)`]}
-                    templateColumns={[`repeat(4, 1fr)`, `repeat(4, 1fr)`, `repeat(1, 1fr)`, `repeat(1, 1fr)`]}
-                    gap={6}
-                    paddingY={[0, 0, 2, 2]}
-                >
+                <FormContainer>
                     <GridItem display={`flex`} flexDirection={`column`} rowSpan={1} colSpan={[4, 4, 1, 1]}
                               alignItems={`center`}
                               justifyContent={`center`}>
@@ -123,22 +138,7 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                     <GridItem rowSpan={[1, 1, 3, 3]} colSpan={[4, 4, 1, 1]} display={`flex`}
                               flexDirection={`column`} alignItems={`center`}
                               justifyContent={`center`}>
-
-                        <Grid
-                            templateRows="repeat(1, 1fr)"
-                            templateColumns="repeat(2, 1fr)"
-                            width={`95%`}
-                            height={[`auto`, `auto`, `95%`, `95%`]}
-                            borderRadius={`10px`}
-                            backgroundColor={`#F5F8FA`}
-                            paddingY={[6, 6, 8, 8]}
-                            paddingX={[6, 6, 10, 10]}
-                            display={`flex`}
-                            alignItems={`center`}
-                            justifyContent={`center`}
-                            flexDirection={[`column`, `column`, `row`, `row`]}
-                            gap={8}
-                        >
+                        <PlanPickerContainer>
                             <GridItem display={`flex`} flexDirection={`column`} alignItems={`center`}
                                       justifyContent={`center`} gridGap={6}>
                                 <Flex direction={`row`} alignItems={`center`} justifyContent={`center`}>
@@ -165,6 +165,7 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
 
                                 </ButtonGroup>
                             </GridItem>
+
                             <GridItem display={`flex`} flexDirection={`column`} alignItems={`center`}
                                       justifyContent={`center`} gridGap={6}>
                                 <Flex direction={`row`} alignItems={`center`} justifyContent={`center`}>
@@ -190,8 +191,9 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                                     }
                                 </ButtonGroup>
                             </GridItem>
-                        </Grid>
+                        </PlanPickerContainer>
                     </GridItem>
+
                     <GridItem rowSpan={1} display={`flex`} flexDirection={[`column`, `column`, `row`, `row`]}
                               alignItems={`center`}
                               justifyContent={`center`} colSpan={[4, 4, 1, 1]}>
@@ -203,31 +205,34 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                             minWidth={`100%`}
                             gap={5}
                         >
-                            <GridItem colSpan={[5, 5, 2, 2,]} display={`flex`} flexDirection={`column`}
+                            <GridItem colSpan={[5, 5, 2, 2,]}
+                                      display={`flex`}
+                                      flexDirection={`column`}
                                       alignItems={`center`}
-                                      justifyContent={`center`} gridGap={2}>
-                                <Text fontSize={[`16px`, `16px`, `14px`, `14px`]} fontWeight={`medium`}
-                                      textAlign={`center`} color={`#61696F`}>
+                                      justifyContent={`center`}
+                                      gridGap={2}>
+                                <Text fontSize={[`16px`, `16px`, `14px`, `14px`]}
+                                      fontWeight={`medium`}
+                                      textAlign={`center`}
+                                      color={`#61696F`}>
                                     PREÇO DO KIT POR SEMANA
                                 </Text>
                                 <PlanPrice/>
                             </GridItem>
 
-                            <GridItem colSpan={[5, 5, 3, 3]} display={`flex`} alignItems={`center`}
+                            <GridItem colSpan={[5, 5, 3, 3]}
+                                      display={`flex`}
+                                      alignItems={`center`}
                                       justifyContent={`center`}>
-                                <Button backgroundColor={`#3BB300`} colorScheme={`#3BB300`} borderRadius={`50px`}
-                                        width={`90%`}
-                                        fontWeight={`medium`} fontSize={`15px`}
-                                        onClick={() => handleSubscribeToPlan()}
-                                >
+                                <ButtonSubscribeToPlan onClick={handleSubscribeToPlan}>
                                     Quero assinar agora!
-                                </Button>
+                                </ButtonSubscribeToPlan>
                             </GridItem>
                         </Grid>
                     </GridItem>
-                </Grid>
+                </FormContainer>
             </GridItem>
-        </Grid>
+        </SubscribeToPlanContainer>
     )
 }
 
