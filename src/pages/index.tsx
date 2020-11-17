@@ -8,6 +8,7 @@ import {INITIAL_PLANS_DATA_QUERY} from "../services/graphql-queries";
 import {convertJSONToArray} from "../util";
 import LoadingMessage from "../components/messages/Loading";
 import ErrorMessage from "../components/messages/Error";
+import Head from "next/head";
 
 const Title = () => (
     <Heading
@@ -22,8 +23,12 @@ const Title = () => (
 )
 
 const Index = ({numberOfPeopleArray, weeklyRecipesArray, plans}: IndexProps) => {
+
     return (
         <Container>
+            <Head>
+                <title>Jungsoft's Frontend Challenge - Igor Lourenço</title>
+            </Head>
             <Title/>
             <SubscribeForm
                 numberOfPeopleArray={numberOfPeopleArray}
