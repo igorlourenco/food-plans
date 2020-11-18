@@ -1,15 +1,27 @@
-import {Button, ButtonGroup, Flex as ChakraFlex, Grid, GridProps, GridItem, Heading, Image, Text, useToast, FlexProps} from "@chakra-ui/core";
+import {
+    Button,
+    ButtonGroup,
+    Flex as ChakraFlex,
+    Grid,
+    GridProps,
+    GridItem,
+    Heading,
+    Image,
+    Text,
+    useToast,
+    FlexProps
+} from "@chakra-ui/core";
 import {useState} from "react";
 import {Plan, SubscribeFormProps} from "../interfaces";
 import {gql, useMutation} from "@apollo/client";
 import {SUBSCRIBE_TO_PLAN_MUTATION} from "../services/graphql-queries";
 import {errorToast, getCurrentPlan, successToast} from "../util";
 
-const Flex =  (props: FlexProps) => (
+const Flex = (props: FlexProps) => (
     <ChakraFlex alignItems={`center`}
                 justifyContent={`center`}
-        {...props}>
-            {props.children}
+                {...props}>
+        {props.children}
     </ChakraFlex>
 
 )
@@ -67,6 +79,7 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
 
     const [numberOfPeople, setNumberOfPeople] = useState<number>(initialNumberOfPeople);
     const [weeklyRecipes, setWeeklyRecipes] = useState<number>(initialWeeklyRecipes);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [subscribeToPlan] = useMutation(gql`${SUBSCRIBE_TO_PLAN_MUTATION}`);
 
@@ -98,6 +111,7 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
     }
 
     const handleSubscribeToPlan = () => {
+        setIsLoading(true)
         const plan: Plan | undefined = getCurrentPlan(numberOfPeople, weeklyRecipes, plans)
 
         if (!plan) {
@@ -106,12 +120,17 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
         }
 
         subscribeToPlan({variables: {id: plan.id}}).then(
-            ({data}) => successToast(
-                toast,
-                `Assinatura feita com sucesso!`,
-                `Você assinou o plano de ${data.subscribeToPlan.name}, que atende ${data.subscribeToPlan.numberOfPeople} pessoas`)
+            ({data}) => {
+                setIsLoading(false)
+                successToast(
+                    toast,
+                    `Assinatura feita com sucesso!`,
+                    `Você assinou o plano de ${data.subscribeToPlan.name}, que atende ${data.subscribeToPlan.numberOfPeople} pessoas`)
+                return
+            }
         ).catch(() => {
             errorToast(toast)
+            setIsLoading(false)
             return
         })
     }
@@ -172,7 +191,8 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                                         Quantas receitas por semana?
                                     </Text>
                                 </Flex>
-                                <ButtonGroup display={`flex`} flexWrap={`wrap`} aling={`center`} justify={`center`}  gridGap={1}>
+                                <ButtonGroup display={`flex`} flexWrap={`wrap`} aling={`center`} justify={`center`}
+                                             gridGap={1}>
                                     {
                                         weeklyRecipesArray.map((item: number) => (
                                             <Button key={item} width={`50px`} height={`50px`}
@@ -223,11 +243,12 @@ const SubscribeForm = ({numberOfPeopleArray, weeklyRecipesArray, plans}: Subscri
                                       justifyContent={`center`}>
 
                                 <Button backgroundColor={`#3BB300`}
-                                    colorScheme={`#3BB300`}
-                                    borderRadius={`50px`}
-                                    width={`90%`}
-                                    fontWeight={`medium`}
-                                    fontSize={`15px`} onClick={handleSubscribeToPlan}>
+                                        colorScheme={`#3BB300`}
+                                        borderRadius={`50px`}
+                                        width={`90%`}
+                                        fontWeight={`medium`}
+                                        isLoading={isLoading}
+                                        fontSize={`15px`} onClick={handleSubscribeToPlan}>
                                     Quero assinar agora!
                                 </Button>
 
